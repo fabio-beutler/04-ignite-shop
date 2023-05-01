@@ -1,7 +1,8 @@
 import 'keen-slider/keen-slider.min.css';
 
+import { HtmlAttributes } from '@stitches/react/types/css';
 import { useKeenSlider } from 'keen-slider/react';
-import { GetServerSideProps } from 'next';
+import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Stripe from 'stripe';
@@ -33,7 +34,12 @@ export default function Home({ products }: HomeProps) {
       </Head>
       {products.map((product) => (
         <Product key={product.id} className='keen-slider__slide'>
-          <Image src={product.imageUrl} alt='' width={520} height={480} />
+          <Image
+            src={product.imageUrl}
+            alt={`Foto da ${product.name}`}
+            width={520}
+            height={480}
+          />
 
           <footer>
             <strong>{product.name}</strong>
@@ -45,7 +51,7 @@ export default function Home({ products }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ['data.default_price'],
   });
@@ -59,5 +65,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
   return {
     props: { products },
+    revalidate: 10,
   };
 };
