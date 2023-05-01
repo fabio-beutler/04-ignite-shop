@@ -38,7 +38,7 @@ export default function Product({ product }: ProductProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [{ params: { id: 'prod_Nobes57TB0TRi4' } }],
-    fallback: false,
+    fallback: 'blocking',
   };
 };
 
