@@ -1,3 +1,6 @@
+import 'keen-slider/keen-slider.min.css';
+
+import { useKeenSlider } from 'keen-slider/react';
 import Head from 'next/head';
 import Image from 'next/image';
 
@@ -10,13 +13,20 @@ import { HomeContainer, Product } from '@/styles/pages/home';
 const shirts = [shirt1, shirt2, shirt3, shirt4];
 
 export default function Home() {
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
+    slides: {
+      perView: 3,
+      spacing: 48,
+    },
+  });
+
   return (
-    <HomeContainer>
+    <HomeContainer ref={sliderRef} className='keen-slider'>
       <Head>
         <title>Ignite Shop</title>
       </Head>
-      {Array.from({ length: 2 }).map((_, index) => (
-        <Product key={index}>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Product key={index} className='keen-slider__slide'>
           <Image src={shirts[index]} alt='' width={520} height={480} />
 
           <footer>
