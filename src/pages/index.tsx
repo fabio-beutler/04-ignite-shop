@@ -1,6 +1,5 @@
 import 'keen-slider/keen-slider.min.css';
 
-import { HtmlAttributes } from '@stitches/react/types/css';
 import { useKeenSlider } from 'keen-slider/react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
@@ -9,6 +8,7 @@ import Stripe from 'stripe';
 
 import { stripe } from '@/lib/stripe';
 import { HomeContainer, Product } from '@/styles/pages/home';
+import { priceFormatter } from '@/utils/formatter';
 
 interface HomeProps {
   products: {
@@ -33,7 +33,11 @@ export default function Home({ products }: HomeProps) {
         <title>Ignite Shop</title>
       </Head>
       {products.map((product) => (
-        <Product key={product.id} className='keen-slider__slide'>
+        <Product
+          key={product.id}
+          href={`/product/${product.id}`}
+          className='keen-slider__slide'
+        >
           <Image
             src={product.imageUrl}
             alt={`Foto da ${product.name}`}
@@ -60,11 +64,13 @@ export const getStaticProps: GetStaticProps = async () => {
     id: product.id,
     name: product.name,
     imageUrl: product.images[0],
-    price: ((product.default_price as Stripe.Price).unit_amount as number) / 100,
+    price: priceFormatter.format(
+      ((product.default_price as Stripe.Price).unit_amount as number) / 100
+    ),
   }));
 
   return {
     props: { products },
-    revalidate: 10,
+    revalidate: 60 * 60 * 2, // 2 hours
   };
 };
