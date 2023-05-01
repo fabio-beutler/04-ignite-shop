@@ -1,18 +1,24 @@
 import 'keen-slider/keen-slider.min.css';
 
 import { useKeenSlider } from 'keen-slider/react';
+import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import Stripe from 'stripe';
 
-import shirt1 from '@/assets/shirts/shirt-1.png';
-import shirt2 from '@/assets/shirts/shirt-2.png';
-import shirt3 from '@/assets/shirts/shirt-3.png';
-import shirt4 from '@/assets/shirts/shirt-4.png';
+import { stripe } from '@/lib/stripe';
 import { HomeContainer, Product } from '@/styles/pages/home';
 
-const shirts = [shirt1, shirt2, shirt3, shirt4];
+interface HomeProps {
+  products: {
+    id: string;
+    name: string;
+    imageUrl: string;
+    price: number;
+  }[];
+}
 
-export default function Home() {
+export default function Home({ products }: HomeProps) {
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     slides: {
       perView: 3,
@@ -25,16 +31,33 @@ export default function Home() {
       <Head>
         <title>Ignite Shop</title>
       </Head>
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Product key={index} className='keen-slider__slide'>
-          <Image src={shirts[index]} alt='' width={520} height={480} />
+      {products.map((product) => (
+        <Product key={product.id} className='keen-slider__slide'>
+          <Image src={product.imageUrl} alt='' width={520} height={480} />
 
           <footer>
-            <strong>Camiseta X</strong>
-            <span>R$ 79,90</span>
+            <strong>{product.name}</strong>
+            <span>{product.price}</span>
           </footer>
         </Product>
       ))}
     </HomeContainer>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const response = await stripe.products.list({
+    expand: ['data.default_price'],
+  });
+
+  const products = response.data.map((product) => ({
+    id: product.id,
+    name: product.name,
+    imageUrl: product.images[0],
+    price: ((product.default_price as Stripe.Price).unit_amount as number) / 100,
+  }));
+
+  return {
+    props: { products },
+  };
+};
