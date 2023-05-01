@@ -13,10 +13,15 @@ interface ProductProps {
     imageUrl: string;
     price: string;
     description: string;
+    defaultPriceId: string;
   };
 }
 
 export default function Product({ product }: ProductProps) {
+  function handleBuyProduct() {
+    console.log(product.defaultPriceId);
+  }
+
   return (
     <ProductContainer>
       <ImageContainer>
@@ -29,7 +34,9 @@ export default function Product({ product }: ProductProps) {
 
         <p>{product.description}</p>
 
-        <button>Comprar agora</button>
+        <button type='button' onClick={handleBuyProduct}>
+          Comprar agora
+        </button>
       </ProductDetails>
     </ProductContainer>
   );
@@ -52,16 +59,17 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     expand: ['default_price'],
   });
 
+  const price = product.default_price as Stripe.Price;
+
   return {
     props: {
       product: {
         id: product.id,
         name: product.name,
         imageUrl: product.images[0],
-        price: priceFormatter.format(
-          ((product.default_price as Stripe.Price).unit_amount as number) / 100
-        ),
+        price: priceFormatter.format((price.unit_amount as number) / 100),
         description: product.description,
+        defaultPriceId: price.id,
       },
     },
     revalidate: 60 * 60 * 1, // 1 hours
