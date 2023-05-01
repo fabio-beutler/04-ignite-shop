@@ -12,6 +12,8 @@ export default function Document() {
           rel='stylesheet'
         />
 
+        <link rel='icon' href='ignite-symbol.svg' type='image/svg+xml' />
+
         <style id='stitches' dangerouslySetInnerHTML={{ __html: getCssText() }} />
       </Head>
       <body>
